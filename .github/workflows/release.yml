@@ -16,6 +16,7 @@ permissions:
   id-token: write
 
 env:
+  IMAGE_NAME: ghcr.io/jayakh/docmost
   VERSION: ${{ inputs.version || github.ref_name }}
 
 jobs:
@@ -61,7 +62,7 @@ jobs:
         with:
           context: .
           platforms: ${{ matrix.platform }}
-          outputs: type=image,name=ghcr.io/${{ github.repository }},push-by-digest=true,name-canonical=true,push=true
+          outputs: type=image,name=ghcr.io/${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true,push=true
           cache-from: type=gha,scope=${{ matrix.suffix }}
           cache-to: type=gha,scope=${{ matrix.suffix }},mode=max
 
@@ -89,8 +90,8 @@ jobs:
           platforms: ${{ matrix.platform }}
           push: false
           tags: |
-            ghcr.io/${{ github.repository }}:latest
-            ghcr.io/${{ github.repository }}:${{ steps.strip-v.outputs.version }}
+            ghcr.io/${{ env.IMAGE_NAME }}:latest
+            ghcr.io/${{ env.IMAGE_NAME }}:${{ steps.strip-v.outputs.version }}
           outputs: type=docker,dest=docmost-${{ matrix.suffix }}.docker.tar
           cache-from: type=gha,scope=${{ matrix.suffix }}
 
@@ -129,7 +130,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository }}
+          images: ghcr.io/${{ env.IMAGE_NAME }}
           tags: |
             type=semver,pattern={{version}},value=${{ env.VERSION }}
             type=semver,pattern={{major}}.{{minor}},value=${{ env.VERSION }},enable=${{ !contains(env.VERSION, '-') }}
@@ -139,7 +140,7 @@ jobs:
         working-directory: /tmp/digests
         run: |
           docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
-            $(printf "ghcr.io/${{ github.repository }}@sha256:%s " *)
+            $(printf "ghcr.io/${{ env.IMAGE_NAME }}@sha256:%s " *)
 
       - name: Download image archives
         uses: actions/download-artifact@v4
