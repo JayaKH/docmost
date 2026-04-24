@@ -31,19 +31,19 @@ jobs:
         #   suffix: arm64
     runs-on: ${{ matrix.runner }}
     steps:
-      - name: Generate token
-        id: app-token
-        uses: actions/create-github-app-token@v1
-        with:
-          app-id: ${{ secrets.BUILD_APP_ID }}
-          private-key: ${{ secrets.BUILD_APP_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
+    # - name: Generate token
+    #   id: app-token
+    #   uses: actions/create-github-app-token@v1
+    #   with:
+    #     app-id: ${{ secrets.BUILD_APP_ID }}
+    #     private-key: ${{ secrets.BUILD_APP_PRIVATE_KEY }}
+    #     owner: ${{ github.repository_owner }}
 
-      - name: Checkout with submodules
+      - name: Checkout without submodules
         uses: actions/checkout@v4
         with:
-          submodules: recursive
-          token: ${{ steps.app-token.outputs.token }}
+          submodules: false 
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
