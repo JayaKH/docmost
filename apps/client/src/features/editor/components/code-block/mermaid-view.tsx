@@ -17,6 +17,13 @@ export default function MermaidView({ props }: MermaidViewProps) {
   const { node } = props;
   const [preview, setPreview] = useState<string>("");
 
+  mermaid.registerIconPacks([
+    {
+      name: 'logos',
+      loader: () => import('@iconify-json/logos').then((module) => module.icons),
+    },
+  ]);
+
   // Update Mermaid config when theme changes.
   useEffect(() => {
     mermaid.initialize({
